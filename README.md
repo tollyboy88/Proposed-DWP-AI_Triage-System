@@ -19,7 +19,7 @@ You can use any of the following options:
 
 ```sh
 # Step 1: Clone the repository
- git clone <YOUR_GIT_URL>
+ git clone <[YOUR_GIT_UR](https://github.com/tollyboy88/Proposed-DWP-AI_Triage-System)L>
 
 # Step 2: Navigate to the project directory
  cd dwp-triage-system
