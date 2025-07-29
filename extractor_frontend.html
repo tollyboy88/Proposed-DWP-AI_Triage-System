@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email & Letter Extractor</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 2rem; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 1rem; }
+    input, button, textarea { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 5px; }
+    button { background: #1976d2; color: white; border: none; cursor: pointer; }
+    #result, #error { display: none; padding: 1rem; border-radius: 5px; margin-top: 1rem; }
+    #result { background: #e8f5e9; }
+    #error { background: #ffebee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📧 Email and 📄 Letter Extractor</h2>
+
+    <form id="emailForm">
+      <h3>Email Extractor</h3>
+      <label>Email:</label>
+      <input type="email" id="email" required>
+
+      <label>Password (App Password):</label>
+      <input type="password" id="password" required>
+
+      <label>Start Index:</label>
+      <input type="number" id="start" value="0">
+
+      <label>End Index:</label>
+      <input type="number" id="end" value="100">
+
+      <button type="submit">📥 Extract Emails</button>
+    </form>
+
+    <form id="letterForm">
+      <h3>Letter Extractor</h3>
+      <label>Upload Letter Files (PDF, PNG, JPG):</label>
+      <input type="file" id="letterFiles" multiple accept=".pdf,.png,.jpg,.jpeg">
+
+      <button type="submit">📤 Extract Letters</button>
+    </form>
+
+    <div id="result"></div>
+    <div id="error"></div>
+  </div>
+
+  <script>
+    const emailForm = document.getElementById('emailForm');
+    const letterForm = document.getElementById('letterForm');
+    const result = document.getElementById('result');
+    const errorBox = document.getElementById('error');
+
+    emailForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      result.style.display = 'none'; errorBox.style.display = 'none';
+
+      const body = JSON.stringify({
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        start: document.getElementById('start').value,
+        end: document.getElementById('end').value
+      });
+
+      try {
+        const res = await fetch('http://localhost:5050/extract/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.innerHTML = `✅ ${data.message}<br>📄 <a href="${data.csv}" target="_blank">Download CSV</a> | <a href="${data.json}" target="_blank">Download JSON</a>`;
+          result.style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Extraction failed');
+        }
+      } catch (err) {
+        errorBox.innerText = '❌ ' + err.message;
+        errorBox.style.display = 'block';
+      }
+    });
+
+    letterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      result.style.display = 'none'; errorBox.style.display = 'none';
+
+      const files = document.getElementById('letterFiles').files;
+      const formData = new FormData();
+      for (let file of files) {
+        formData.append('files', file);
+      }
+
+      try {
+        const res = await fetch('http://localhost:5050/extract/letter', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.innerHTML = `✅ ${data.message}<br>📄 <a href="${data.csv}" target="_blank">Download CSV</a> | <a href="${data.json}" target="_blank">Download JSON</a>`;
+          result.style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Letter extraction failed');
+        }
+      } catch (err) {
+        errorBox.innerText = '❌ ' + err.message;
+        errorBox.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
