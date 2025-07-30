@@ -100,6 +100,7 @@ root/
 ## Questions or Feedback?
 
 Please open an issue or contact the maintainers.
+adebayoadetola96@yahoo.com
 
 ---
 
